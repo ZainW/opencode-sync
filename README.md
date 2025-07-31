@@ -106,7 +106,7 @@ Each profile contains:
 
 The installer can set up remote sync, or you can configure it manually:
 
-1. Create a private GitHub repository
+1. Create a NEW EMPTY private GitHub repository (don't initialize with README)
 2. Set up SSH key authentication (recommended):
    ```bash
    # Generate SSH key

@@ -296,7 +296,8 @@ setup_remote() {
     echo
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Please create a private repository on GitHub (or your preferred Git host)"
+        echo "Please create a NEW EMPTY private repository on GitHub (or your preferred Git host)"
+        echo "Important: Do NOT initialize with README, .gitignore, or license"
         echo
         echo "Examples:"
         echo "  SSH format (recommended):  git@github.com:yourusername/opencode-profiles.git"

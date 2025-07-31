@@ -169,51 +169,58 @@ sync_remote() {
         fi
     fi
     
-    # Try to fetch remote info
-    if git fetch origin 2>/dev/null; then
-        # Check if remote has main branch
+    # Check if remote repository is empty
+    if git ls-remote --heads origin | grep -q .; then
+        # Remote has branches, determine which one to use
         if git ls-remote --heads origin main | grep -q main; then
             default_branch="main"
-        # Check if remote has master branch
         elif git ls-remote --heads origin master | grep -q master; then
             default_branch="master"
-        # Use whatever branch we're currently on
         else
-            default_branch="$current_branch"
+            # Use the first branch we find
+            default_branch=$(git ls-remote --heads origin | head -1 | sed 's/.*refs\/heads\///')
+        fi
+        
+        log "Remote repository has branches, using: $default_branch"
+        
+        # Switch to the default branch if we're not already on it
+        if [ "$current_branch" != "$default_branch" ]; then
+            if git show-ref --verify --quiet "refs/heads/$default_branch"; then
+                git checkout "$default_branch"
+            else
+                git checkout -b "$default_branch"
+            fi
+        fi
+        
+        # Pull first, then push
+        if git pull origin "$default_branch" --rebase 2>/dev/null; then
+            log "Successfully pulled from remote"
+        else
+            warn "Failed to pull from remote"
+        fi
+        
+        if git push origin "$default_branch" 2>/dev/null; then
+            success "Successfully pushed to remote"
+        else
+            error "Failed to push to remote"
+            return 1
         fi
     else
-        # If fetch fails, this might be the first push
-        log "Remote repository appears to be empty, pushing initial content..."
+        # Remote repository is empty, push our current branch
+        log "Remote repository is empty, pushing initial content..."
+        
+        # Use main as default for new repos
+        if [ "$current_branch" != "main" ]; then
+            git checkout -b main 2>/dev/null || git checkout main
+            current_branch="main"
+        fi
+        
         if git push -u origin "$current_branch" 2>/dev/null; then
-            success "Initial push completed"
-            return
+            success "Initial push completed - repository initialized with $current_branch branch"
         else
             error "Failed to push to remote repository"
             return 1
         fi
-    fi
-    
-    # Switch to the default branch if we're not already on it
-    if [ "$current_branch" != "$default_branch" ]; then
-        if git show-ref --verify --quiet "refs/heads/$default_branch"; then
-            git checkout "$default_branch"
-        else
-            git checkout -b "$default_branch"
-        fi
-    fi
-    
-    # Pull and push
-    if git pull origin "$default_branch" --rebase 2>/dev/null; then
-        log "Successfully pulled from remote"
-    else
-        warn "Failed to pull from remote (this is normal for first sync)"
-    fi
-    
-    if git push origin "$default_branch" 2>/dev/null; then
-        success "Successfully pushed to remote"
-    else
-        error "Failed to push to remote"
-        return 1
     fi
     
     success "Sync completed"

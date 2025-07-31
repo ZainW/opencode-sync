@@ -55,7 +55,8 @@ curl -fsSL https://bun.sh/install | bash
 
 ## Setup Remote Sync
 
-1. Create a private GitHub repository for your profiles (e.g., "opencode-profiles")
+1. Create a NEW EMPTY private GitHub repository for your profiles (e.g., "opencode-profiles")
+   - Important: Do NOT initialize with README, .gitignore, or license
 2. Set the environment variable (replace 'yourusername' with your GitHub username):
    ```bash
    export OPENCODE_SYNC_REPO="git@github.com:yourusername/opencode-profiles.git"
