@@ -107,8 +107,8 @@ switch_profile() {
         echo -e "${YELLOW}Switching to profile: $profile_name${NC}"
         "$SYNC_SCRIPT" switch "$profile_name"
         echo ""
-        echo "Press Enter to continue..."
-        read dummy
+        printf "Press Enter to continue..."
+        read dummy 2>/dev/null || true
     fi
 }
 
@@ -117,12 +117,12 @@ create_profile() {
     echo -e "${BLUE}Create new profile${NC}"
     echo ""
     
-    echo "Profile name: "
-    read profile_name
+    printf "Profile name: "
+    read profile_name 2>/dev/null || profile_name=""
     if [ -z "$profile_name" ]; then
         echo "Profile name cannot be empty"
-        echo "Press Enter to continue..."
-        read dummy
+        printf "Press Enter to continue..."
+        read dummy 2>/dev/null || true
         return
     fi
     
@@ -132,8 +132,8 @@ create_profile() {
     echo "2. work"
     echo "3. personal"
     echo ""
-    echo "Choose template (1-3) or press Enter for default: "
-    read template_choice
+    printf "Choose template (1-3) or press Enter for default: "
+    read template_choice 2>/dev/null || template_choice=""
     
     case "$template_choice" in
         2) template="work" ;;
@@ -155,16 +155,16 @@ sync_remote() {
     
     if [ -z "${OPENCODE_SYNC_REPO:-}" ]; then
         echo -e "${YELLOW}No remote repository configured.${NC}"
-        echo "Enter repository URL (or press Enter to skip): "
-        read repo_url
+        printf "Enter repository URL (or press Enter to skip): "
+        read repo_url 2>/dev/null || repo_url=""
         if [ -n "$repo_url" ]; then
             export OPENCODE_SYNC_REPO="$repo_url"
             echo "export OPENCODE_SYNC_REPO=\"$repo_url\"" >> ~/.bashrc
             echo -e "${GREEN}Repository URL saved to ~/.bashrc${NC}"
         else
             echo "Skipping sync"
-            echo "Press Enter to continue..."
-        read dummy
+            printf "Press Enter to continue..."
+        read dummy 2>/dev/null || true
             return
         fi
     fi
@@ -202,8 +202,8 @@ view_profile_details() {
         tree "$profile_dir" 2>/dev/null || find "$profile_dir" -type f | head -10
         echo ""
         
-        echo "Press Enter to continue..."
-        read dummy
+        printf "Press Enter to continue..."
+        read dummy 2>/dev/null || true
     fi
 }
 
@@ -235,8 +235,8 @@ open_profile_dir() {
             xdg-open "$profile_dir" 2>/dev/null || open "$profile_dir" 2>/dev/null || echo "Please open: $profile_dir"
         fi
         
-        echo "Press Enter to continue..."
-        read dummy
+        printf "Press Enter to continue..."
+        read dummy 2>/dev/null || true
     fi
 }
 
@@ -249,8 +249,19 @@ main() {
         show_status
         show_menu
         
-        echo "Enter your choice (1-8): "
-        read choice
+        # Try alternative input method
+        printf "Enter your choice (1-8): "
+        
+        # Try multiple input methods
+        if command -v timeout >/dev/null 2>&1; then
+            # Use timeout to prevent hanging
+            choice=$(timeout 30 bash -c 'read -r input; echo "$input"' 2>/dev/null || echo "")
+        else
+            # Fallback without timeout
+            choice=""
+            IFS= read -r choice 2>/dev/null || choice=""
+        fi
+        
         echo ""
         
         case "$choice" in
@@ -260,15 +271,15 @@ main() {
             4) 
                 echo -e "${BLUE}Deploying current profile...${NC}"
                 "$SYNC_SCRIPT" deploy
-                echo "Press Enter to continue..."
-                read dummy
+                printf "Press Enter to continue..."
+                read dummy 2>/dev/null || true
                 ;;
             5) view_profile_details ;;
             6) 
                 echo -e "${BLUE}Initializing git repository...${NC}"
                 "$SYNC_SCRIPT" init
-                echo "Press Enter to continue..."
-                read dummy
+                printf "Press Enter to continue..."
+                read dummy 2>/dev/null || true
                 ;;
             7) open_profile_dir ;;
             8) 
@@ -277,8 +288,8 @@ main() {
                 ;;
             *)
                 echo -e "${RED}Invalid choice. Please try again.${NC}"
-                echo "Press Enter to continue..."
-                read dummy
+                printf "Press Enter to continue..."
+                read dummy 2>/dev/null || true
                 ;;
         esac
     done
