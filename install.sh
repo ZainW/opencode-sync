@@ -298,10 +298,13 @@ setup_remote() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Please create a private repository on GitHub (or your preferred Git host)"
         echo
-        echo "SSH format (recommended): git@github.com:username/opencode-profiles.git"
-        echo "HTTPS format: https://github.com/username/opencode-profiles.git"
+        echo "Examples:"
+        echo "  SSH format (recommended):  git@github.com:yourusername/opencode-profiles.git"
+        echo "  HTTPS format:              https://github.com/yourusername/opencode-profiles.git"
         echo
-        read -p "Enter your repository URL (SSH format recommended): " repo_url
+        echo "Replace 'yourusername' with your actual GitHub username"
+        echo
+        read -p "Enter your repository URL: " repo_url
         
         if [[ -n "$repo_url" ]]; then
             # Validate SSH format and suggest SSH key setup if needed

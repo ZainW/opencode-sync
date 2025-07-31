@@ -55,11 +55,11 @@ curl -fsSL https://bun.sh/install | bash
 
 ## Setup Remote Sync
 
-1. Create a private GitHub repository for your profiles
-2. Set the environment variable:
+1. Create a private GitHub repository for your profiles (e.g., "opencode-profiles")
+2. Set the environment variable (replace 'yourusername' with your GitHub username):
    ```bash
-   export OPENCODE_SYNC_REPO="git@github.com:username/opencode-profiles.git"
-   echo 'export OPENCODE_SYNC_REPO="git@github.com:username/opencode-profiles.git"' >> ~/.bashrc
+   export OPENCODE_SYNC_REPO="git@github.com:yourusername/opencode-profiles.git"
+   echo 'export OPENCODE_SYNC_REPO="git@github.com:yourusername/opencode-profiles.git"' >> ~/.bashrc
    ```
 3. Initialize and sync:
    ```bash
@@ -72,9 +72,9 @@ curl -fsSL https://bun.sh/install | bash
 On a new machine:
 
 1. Install dependencies (see above)
-2. Clone your profiles:
+2. Clone your profiles (replace 'yourusername' with your GitHub username):
    ```bash
-   git clone git@github.com:username/opencode-profiles.git ~/.local/share/opencode-sync
+   git clone git@github.com:yourusername/opencode-profiles.git ~/.local/share/opencode-sync
    ```
 3. Add to PATH:
    ```bash

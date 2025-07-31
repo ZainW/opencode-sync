@@ -118,9 +118,9 @@ The installer can set up remote sync, or you can configure it manually:
    # Copy public key and add to GitHub
    cat ~/.ssh/id_ed25519.pub
    ```
-3. Set the environment variable:
+3. Set the environment variable (replace 'yourusername' with your GitHub username):
    ```bash
-   export OPENCODE_SYNC_REPO="git@github.com:username/opencode-profiles.git"
+   export OPENCODE_SYNC_REPO="git@github.com:yourusername/opencode-profiles.git"
    ```
 4. Sync:
    ```bash
@@ -131,9 +131,9 @@ The installer can set up remote sync, or you can configure it manually:
 
 On a new machine:
 
-1. Clone your profiles repository:
+1. Clone your profiles repository (replace 'yourusername' with your GitHub username):
    ```bash
-   git clone git@github.com:username/opencode-profiles.git ~/.local/share/opencode-sync
+   git clone git@github.com:yourusername/opencode-profiles.git ~/.local/share/opencode-sync
    ```
 
 2. Run the installer:

@@ -34,6 +34,27 @@ warn() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
+# Test SSH connectivity for SSH URLs
+test_ssh_connection() {
+    local repo_url="$1"
+    
+    if [[ "$repo_url" == git@github.com:* ]]; then
+        log "Testing SSH connection to GitHub..."
+        if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+            success "SSH authentication working"
+            return 0
+        else
+            warn "SSH authentication failed"
+            echo "To set up SSH keys:"
+            echo "  1. ssh-keygen -t ed25519 -C \"your_email@example.com\""
+            echo "  2. ssh-add ~/.ssh/id_ed25519"
+            echo "  3. cat ~/.ssh/id_ed25519.pub  # Add this to GitHub"
+            return 1
+        fi
+    fi
+    return 0
+}
+
 # Initialize git repo if not exists
 init_repo() {
     if [ ! -d "$SYNC_DIR/.git" ]; then
@@ -43,13 +64,24 @@ init_repo() {
         echo "# opencode-sync profiles" > README.md
         echo ".current-profile" > .gitignore
         echo "*.log" >> .gitignore
+        echo "bun.lock" >> .gitignore
+        echo "node_modules/" >> .gitignore
         git add .
         git commit -m "Initial commit: opencode-sync setup"
         
         if [ -n "$REPO_URL" ]; then
+            # Test SSH connection if using SSH
+            if [[ "$REPO_URL" == git@* ]]; then
+                if ! test_ssh_connection "$REPO_URL"; then
+                    warn "SSH connection failed, but continuing with setup"
+                fi
+            fi
+            
             git remote add origin "$REPO_URL"
             log "Added remote origin: $REPO_URL"
         fi
+    else
+        log "Git repository already initialized"
     fi
 }
 
@@ -113,6 +145,9 @@ sync_remote() {
     # Check if we have a remote
     if ! git remote get-url origin >/dev/null 2>&1; then
         git remote add origin "$REPO_URL"
+    else
+        # Update remote URL if it changed
+        git remote set-url origin "$REPO_URL"
     fi
     
     log "Syncing with remote repository..."
@@ -123,9 +158,63 @@ sync_remote() {
         git commit -m "Auto-sync: $(date '+%Y-%m-%d %H:%M:%S')" || true
     fi
     
+    # Determine the default branch
+    local default_branch="main"
+    local current_branch=$(git branch --show-current)
+    
+    # Test SSH connection if using SSH URL
+    if [[ "$REPO_URL" == git@* ]]; then
+        if ! test_ssh_connection "$REPO_URL"; then
+            error "SSH authentication failed. Please set up SSH keys or use HTTPS URL."
+        fi
+    fi
+    
+    # Try to fetch remote info
+    if git fetch origin 2>/dev/null; then
+        # Check if remote has main branch
+        if git ls-remote --heads origin main | grep -q main; then
+            default_branch="main"
+        # Check if remote has master branch
+        elif git ls-remote --heads origin master | grep -q master; then
+            default_branch="master"
+        # Use whatever branch we're currently on
+        else
+            default_branch="$current_branch"
+        fi
+    else
+        # If fetch fails, this might be the first push
+        log "Remote repository appears to be empty, pushing initial content..."
+        if git push -u origin "$current_branch" 2>/dev/null; then
+            success "Initial push completed"
+            return
+        else
+            error "Failed to push to remote repository"
+            return 1
+        fi
+    fi
+    
+    # Switch to the default branch if we're not already on it
+    if [ "$current_branch" != "$default_branch" ]; then
+        if git show-ref --verify --quiet "refs/heads/$default_branch"; then
+            git checkout "$default_branch"
+        else
+            git checkout -b "$default_branch"
+        fi
+    fi
+    
     # Pull and push
-    git pull origin main --rebase || warn "Failed to pull from remote"
-    git push origin main || warn "Failed to push to remote"
+    if git pull origin "$default_branch" --rebase 2>/dev/null; then
+        log "Successfully pulled from remote"
+    else
+        warn "Failed to pull from remote (this is normal for first sync)"
+    fi
+    
+    if git push origin "$default_branch" 2>/dev/null; then
+        success "Successfully pushed to remote"
+    else
+        error "Failed to push to remote"
+        return 1
+    fi
     
     success "Sync completed"
 }
