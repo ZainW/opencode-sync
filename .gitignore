@@ -1,2 +1,4 @@
 .current-profile
 *.log
+node_modules/
+**/node_modules/
