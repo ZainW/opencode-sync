@@ -1,0 +1,20 @@
+{
+  "name": "opencode-sync-tui",
+  "version": "1.0.0",
+  "description": "Terminal UI for opencode profile management using OpenTUI",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run index.ts",
+    "build": "bun build index.ts --outdir=dist --target=node",
+    "start": "bun run index.ts",
+    "tui": "bun run index.ts"
+  },
+  "dependencies": {
+    "@opentui/core": "github:sst/opentui"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
