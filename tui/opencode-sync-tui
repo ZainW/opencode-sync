@@ -6,15 +6,16 @@ import { join } from "path";
 import { homedir } from "os";
 
 const SYNC_DIR = join(homedir(), ".local/share/opencode-sync");
-const BASH_TUI = join(SYNC_DIR, "tui/opencode-sync-tui-bash");
+const BASH_TUI_WRAPPER = join(SYNC_DIR, "run-tui.sh");
 
 try {
   // Try to import and run OpenTUI version
   await import("./index.ts");
 } catch (error) {
   console.log("OpenTUI not available, using bash fallback...");
+  console.log("Error:", error.message);
   console.log("To enable OpenTUI: install Zig and run 'cd ~/.local/share/opencode-sync/tui && bun install'");
   
-  // Fallback to bash TUI
-  spawn('bash', [BASH_TUI, ...process.argv.slice(2)], { stdio: 'inherit' });
+  // Fallback to bash TUI using working wrapper
+  spawn('bash', [BASH_TUI_WRAPPER, ...process.argv.slice(2)], { stdio: 'inherit' });
 }
