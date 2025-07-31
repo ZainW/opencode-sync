@@ -23,20 +23,7 @@ check_deps() {
     [ -f "$SYNC_SCRIPT" ] || { echo "Sync script not found at $SYNC_SCRIPT"; exit 1; }
 }
 
-# Safe read function with fallback
-safe_read() {
-    local prompt="$1"
-    local var_name="$2"
-    
-    if [ -t 0 ] && [ -r /dev/tty ]; then
-        # Terminal is available and /dev/tty is readable
-        read -p "$prompt" "$var_name" < /dev/tty
-    else
-        # Fallback to regular read
-        echo -n "$prompt"
-        read "$var_name"
-    fi
-}
+
 
 # Display header
 show_header() {
@@ -120,7 +107,8 @@ switch_profile() {
         echo -e "${YELLOW}Switching to profile: $profile_name${NC}"
         "$SYNC_SCRIPT" switch "$profile_name"
         echo ""
-        read -p "Press Enter to continue..." < /dev/tty
+        echo "Press Enter to continue..."
+        read dummy
     fi
 }
 
@@ -129,10 +117,12 @@ create_profile() {
     echo -e "${BLUE}Create new profile${NC}"
     echo ""
     
-    safe_read "Profile name: " profile_name
+    echo "Profile name: "
+    read profile_name
     if [ -z "$profile_name" ]; then
         echo "Profile name cannot be empty"
-        read -p "Press Enter to continue..." < /dev/tty
+        echo "Press Enter to continue..."
+        read dummy
         return
     fi
     
@@ -142,7 +132,8 @@ create_profile() {
     echo "2. work"
     echo "3. personal"
     echo ""
-    safe_read "Choose template (1-3) or press Enter for default: " template_choice
+    echo "Choose template (1-3) or press Enter for default: "
+    read template_choice
     
     case "$template_choice" in
         2) template="work" ;;
@@ -164,14 +155,16 @@ sync_remote() {
     
     if [ -z "${OPENCODE_SYNC_REPO:-}" ]; then
         echo -e "${YELLOW}No remote repository configured.${NC}"
-        safe_read "Enter repository URL (or press Enter to skip): " repo_url
+        echo "Enter repository URL (or press Enter to skip): "
+        read repo_url
         if [ -n "$repo_url" ]; then
             export OPENCODE_SYNC_REPO="$repo_url"
             echo "export OPENCODE_SYNC_REPO=\"$repo_url\"" >> ~/.bashrc
             echo -e "${GREEN}Repository URL saved to ~/.bashrc${NC}"
         else
             echo "Skipping sync"
-            read -p "Press Enter to continue..." < /dev/tty
+            echo "Press Enter to continue..."
+        read dummy
             return
         fi
     fi
@@ -209,7 +202,8 @@ view_profile_details() {
         tree "$profile_dir" 2>/dev/null || find "$profile_dir" -type f | head -10
         echo ""
         
-        read -p "Press Enter to continue..." < /dev/tty
+        echo "Press Enter to continue..."
+        read dummy
     fi
 }
 
@@ -241,7 +235,8 @@ open_profile_dir() {
             xdg-open "$profile_dir" 2>/dev/null || open "$profile_dir" 2>/dev/null || echo "Please open: $profile_dir"
         fi
         
-        read -p "Press Enter to continue..." < /dev/tty
+        echo "Press Enter to continue..."
+        read dummy
     fi
 }
 
@@ -254,7 +249,8 @@ main() {
         show_status
         show_menu
         
-        safe_read "Enter your choice (1-8): " choice
+        echo "Enter your choice (1-8): "
+        read choice
         echo ""
         
         case "$choice" in
@@ -264,11 +260,16 @@ main() {
             4) 
                 echo -e "${BLUE}Deploying current profile...${NC}"
                 "$SYNC_SCRIPT" deploy
-                echo ""
-                read -p "Press Enter to continue..." < /dev/tty
+                echo "Press Enter to continue..."
+                read dummy
                 ;;
             5) view_profile_details ;;
-            6) init_git ;;
+            6) 
+                echo -e "${BLUE}Initializing git repository...${NC}"
+                "$SYNC_SCRIPT" init
+                echo "Press Enter to continue..."
+                read dummy
+                ;;
             7) open_profile_dir ;;
             8) 
                 echo -e "${GREEN}Goodbye!${NC}"
@@ -276,7 +277,8 @@ main() {
                 ;;
             *)
                 echo -e "${RED}Invalid choice. Please try again.${NC}"
-                sleep 1
+                echo "Press Enter to continue..."
+                read dummy
                 ;;
         esac
     done
