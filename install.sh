@@ -297,11 +297,42 @@ setup_remote() {
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Please create a private repository on GitHub (or your preferred Git host)"
-        echo "Example: https://github.com/username/opencode-profiles"
+        echo
+        echo "SSH format (recommended): git@github.com:username/opencode-profiles.git"
+        echo "HTTPS format: https://github.com/username/opencode-profiles.git"
         echo
         read -p "Enter your repository URL (SSH format recommended): " repo_url
         
         if [[ -n "$repo_url" ]]; then
+            # Validate SSH format and suggest SSH key setup if needed
+            if [[ "$repo_url" == git@* ]]; then
+                info "Using SSH format - this requires SSH key authentication"
+                
+                # Test SSH connection to GitHub
+                if [[ "$repo_url" == git@github.com:* ]]; then
+                    log "Testing SSH connection to GitHub..."
+                    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+                        success "SSH key authentication working"
+                    else
+                        warn "SSH key authentication may not be set up"
+                        echo "To set up SSH keys for GitHub:"
+                        echo "  1. Generate key: ssh-keygen -t ed25519 -C \"your_email@example.com\""
+                        echo "  2. Add to agent: ssh-add ~/.ssh/id_ed25519"
+                        echo "  3. Copy public key: cat ~/.ssh/id_ed25519.pub"
+                        echo "  4. Add to GitHub: Settings > SSH and GPG keys > New SSH key"
+                        echo
+                        read -p "Continue anyway? (y/N): " -n 1 -r
+                        echo
+                        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                            return 0
+                        fi
+                    fi
+                fi
+            elif [[ "$repo_url" == https://* ]]; then
+                warn "HTTPS format will require username/password authentication"
+                warn "Consider using SSH format instead: git@github.com:username/repo.git"
+            fi
+            
             export OPENCODE_SYNC_REPO="$repo_url"
             
             # Add to shell rc
@@ -323,7 +354,10 @@ setup_remote() {
             if "$sync_script" sync; then
                 success "Initial sync completed"
             else
-                warn "Initial sync failed. You can try again later with: sync.sh sync"
+                warn "Initial sync failed. You can try again later with: ocss sync"
+                if [[ "$repo_url" == git@* ]]; then
+                    info "If using SSH, make sure your SSH key is added to your Git host"
+                fi
             fi
         fi
     fi

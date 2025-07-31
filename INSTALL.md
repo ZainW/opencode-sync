@@ -120,11 +120,20 @@ chmod +x ~/.local/share/opencode-sync/tui/opencode-sync-tui
 ```
 
 ### Git Authentication
-Set up SSH keys for GitHub:
+Set up SSH keys for GitHub (recommended for private repos):
 ```bash
+# Generate SSH key
 ssh-keygen -t ed25519 -C "your_email@example.com"
+
+# Add to SSH agent
+ssh-add ~/.ssh/id_ed25519
+
+# Copy public key
 cat ~/.ssh/id_ed25519.pub
-# Add the public key to your GitHub account
+# Add the public key to your GitHub account: Settings > SSH and GPG keys
+
+# Test connection
+ssh -T git@github.com
 ```
 
 ### Profile Not Found

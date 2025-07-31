@@ -107,11 +107,22 @@ Each profile contains:
 The installer can set up remote sync, or you can configure it manually:
 
 1. Create a private GitHub repository
-2. Set the environment variable:
+2. Set up SSH key authentication (recommended):
+   ```bash
+   # Generate SSH key
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   
+   # Add to SSH agent
+   ssh-add ~/.ssh/id_ed25519
+   
+   # Copy public key and add to GitHub
+   cat ~/.ssh/id_ed25519.pub
+   ```
+3. Set the environment variable:
    ```bash
    export OPENCODE_SYNC_REPO="git@github.com:username/opencode-profiles.git"
    ```
-3. Sync:
+4. Sync:
    ```bash
    ocss sync
    ```

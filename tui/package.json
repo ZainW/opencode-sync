@@ -11,7 +11,7 @@
     "tui": "bun run index.ts"
   },
   "dependencies": {
-    "@opentui/core": "github:sst/opentui"
+    "@opentui/core": "git+ssh://git@github.com/sst/opentui.git"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
