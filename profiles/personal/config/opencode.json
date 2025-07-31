@@ -1,0 +1,32 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "tokyo-night",
+  "model": "anthropic/claude-sonnet-4-20250514",
+  "small_model": "anthropic/claude-3-5-haiku-20241022",
+  "autoupdate": true,
+  "share": "auto",
+  "agent": {
+    "personal-helper": {
+      "description": "General purpose coding assistant for personal projects",
+      "prompt": "You are a helpful coding assistant for personal projects. Be creative and experimental.",
+      "tools": {
+        "bash": true,
+        "read": true,
+        "write": true,
+        "edit": true
+      }
+    },
+    "learning-tutor": {
+      "description": "Helps with learning new technologies and concepts",
+      "prompt": "You are a patient tutor. Explain concepts clearly with examples.",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    }
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": "allow"
+  }
+}

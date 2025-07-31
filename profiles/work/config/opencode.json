@@ -1,0 +1,37 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "opencode",
+  "model": "anthropic/claude-sonnet-4-20250514",
+  "small_model": "anthropic/claude-3-5-haiku-20241022",
+  "autoupdate": true,
+  "share": "manual",
+  "instructions": [
+    "CONTRIBUTING.md",
+    "docs/guidelines.md",
+    ".cursor/rules/*.md"
+  ],
+  "agent": {
+    "work-reviewer": {
+      "description": "Reviews code for enterprise standards and security",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "prompt": "You are a senior code reviewer for enterprise software. Focus on security, scalability, and maintainability.",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    },
+    "work-deployer": {
+      "description": "Handles deployment and CI/CD tasks",
+      "prompt": "You are a DevOps specialist. Focus on deployment, monitoring, and infrastructure.",
+      "tools": {
+        "bash": true,
+        "read": true,
+        "write": true
+      }
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  }
+}
