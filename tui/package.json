@@ -11,7 +11,9 @@
     "tui": "bun run index.ts"
   },
   "dependencies": {
-    "@opentui/core": "git+ssh://git@github.com/sst/opentui.git"
+    "@dimforge/rapier2d-simd-compat": "^0.18.0",
+    "@opentui/core": "git+ssh://git@github.com/sst/opentui.git",
+    "planck": "^1.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
