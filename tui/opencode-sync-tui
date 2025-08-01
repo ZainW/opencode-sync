@@ -1,21 +1,10 @@
-#!/usr/bin/env bun
+#!/bin/bash
 
-// Try OpenTUI first, fallback to bash if it fails
-import { spawn } from "child_process";
-import { join } from "path";
-import { homedir } from "os";
+# opencode-sync TUI - Simple bash-based interface
+# This script runs the reliable bash TUI
 
-const SYNC_DIR = join(homedir(), ".local/share/opencode-sync");
-const BASH_TUI_WRAPPER = join(SYNC_DIR, "run-tui.sh");
+SYNC_DIR="$HOME/.local/share/opencode-sync"
+BASH_TUI_WRAPPER="$SYNC_DIR/run-tui.sh"
 
-try {
-  // Try to import and run OpenTUI version
-  await import("./index.ts");
-} catch (error) {
-  console.log("OpenTUI not available, using bash fallback...");
-  console.log("Error:", error.message);
-  console.log("To enable OpenTUI: install Zig and run 'cd ~/.local/share/opencode-sync/tui && bun install'");
-  
-  // Fallback to bash TUI using working wrapper
-  spawn('bash', [BASH_TUI_WRAPPER, ...process.argv.slice(2)], { stdio: 'inherit' });
-}
+# Run the bash TUI wrapper
+exec bash "$BASH_TUI_WRAPPER" "$@"

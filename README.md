@@ -5,11 +5,11 @@ A comprehensive profile management and synchronization system for opencode, buil
 ## Features
 
 - **Profile Management**: Separate configurations for work, personal, and project-specific setups
-- **Modern TUI**: Built with OpenTUI for a rich terminal interface experience
+- **Simple Bash TUI**: Reliable terminal interface that works everywhere
 - **Git-based Sync**: Synchronize profiles across multiple machines using private repositories
 - **Agent Integration**: Custom opencode agents for automated tasks
 - **Template System**: Reusable configuration templates
-- **Fallback Support**: Automatically falls back to bash TUI if OpenTUI isn't available
+- **Universal Compatibility**: Pure bash implementation works on any Unix-like system
 - **Cross-platform**: Works on macOS, Linux (Arch, Ubuntu, etc.)
 
 ## Quick Install
@@ -58,13 +58,13 @@ ocss switch work       # Switch to work profile
 ocss sync              # Sync with remote
 ```
 
-### Modern TUI Interface (OpenTUI)
+### Bash TUI Interface
 
-The primary interface is built with OpenTUI, providing:
-- Rich visual components with mouse support
-- Smooth navigation and selection
+The interface is a reliable bash-based TUI, providing:
+- Simple number-based navigation (1-8)
 - Real-time status updates
-- Responsive layout
+- Universal compatibility
+- No dependencies beyond bash
 
 Launch with:
 ```bash
@@ -87,9 +87,7 @@ ocss create my-project work
 ocss sync
 ```
 
-### Fallback TUI (Bash)
 
-If OpenTUI isn't available, the system automatically falls back to a bash-based TUI with full functionality.
 
 ## Profile Structure
 
@@ -164,10 +162,8 @@ The system includes specialized agents:
 
 ### Automatically Installed
 - `git` - Version control
-- `bun` - JavaScript runtime for OpenTUI
 - `fzf` - Fuzzy finder
 - `tree` - Directory visualization
-- `zig` - For OpenTUI native components (optional but recommended)
 
 ### Platform Support
 - **macOS**: Homebrew
@@ -188,19 +184,11 @@ which git bun fzf zig
 ```
 
 ### TUI Not Working
-The system automatically falls back to bash TUI if OpenTUI fails. To enable OpenTUI:
+If the TUI has issues, try the direct wrapper:
 
 ```bash
-# Install Zig if missing
-sudo snap install zig --classic  # Ubuntu
-brew install zig                 # macOS
-sudo pacman -S zig               # Arch
-
-# Rebuild OpenTUI components
-cd ~/.local/share/opencode-sync/tui
-bun install
-cd node_modules/@opentui/core
-bun run build:prod
+cd ~/.local/share/opencode-sync
+./run-tui.sh
 ```
 
 ### Profile Issues
